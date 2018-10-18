@@ -1,10 +1,12 @@
 #-*- coding: UTF-8 -*-
 import os
+import threading
 
 import mslogger
+import msconfigparser
 
 class MSUrlStore(object):
-    
+
     def _read_seed_file(self):
         """read the contents in seedfile to unvistedUrls"""
         try:
@@ -28,7 +30,9 @@ class MSUrlStore(object):
         # the visited sites
         self.__visitedUrls = []
         self.__logger = mslogger.MSLogger()
+        self.lock = threading.Lock()
         self._read_seed_file()
+        self.config = msconfigparser.MSConfigParser("")
 
     def popUrl(self):
         """
@@ -36,8 +40,10 @@ class MSUrlStore(object):
         """
         url = ""
         if len(self.__unvistedUrls) > 0:
+            self.lock.acquire()
             url = self.__unvistedUrls[0]
             self.__unvistedUrls = self.__unvistedUrls[1:]
+            self.lock.release()
         return url
 
     def pushUrl(self, url):
@@ -46,7 +52,9 @@ class MSUrlStore(object):
         check url is valid or not??
         """
         if not self.checkVisitedUrl(url):
+            self.lock.acquire()
             self.__unvistedUrls.append(url)
+            self.lock.release()
             return True
         return False
 
@@ -55,7 +63,9 @@ class MSUrlStore(object):
         add the visited url to visitedUrls
         """
         if not self.checkVisitedUrl(url):
+            self.lock.acquire()
             self.__visitedUrls.append(url)
+            self.lock.release()
             return True
         return False
 
@@ -63,7 +73,10 @@ class MSUrlStore(object):
         """
         check if the url in visitedUrls
         """
-        return url in self.__visitedUrls
+        self.lock.acquire()
+        r = url in self.__visitedUrls
+        self.lock.release()
+        return r
 
 if __name__ == "__main__":
     seedfile = "test/urls.txt"
@@ -84,3 +97,4 @@ if __name__ == "__main__":
     print(url.strip())
     url = msurlstore.popUrl()
     print("url:", url.strip())
+

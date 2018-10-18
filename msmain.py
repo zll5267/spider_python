@@ -18,5 +18,13 @@ if __name__ == "__main__":
     print("seed file:" + seedfile_path)
     urlstore = msurlstore.MSUrlStore(seedfile_path)
 
-    msWork = mswork.MSWork(urlstore)
-    msWork.doWork()
+    threads = []
+    for i in range(msconfig.threadCount):
+        msWork = mswork.MSWork(urlstore)
+        #msWork.doWork()
+        msWork.start()
+        threads.append(msWork)
+
+    for thread in threads:
+        thread.join()
+

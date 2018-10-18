@@ -4,6 +4,7 @@ import requests
 from bs4 import BeautifulSoup
 
 import mslogger
+import msconfigparser
 
 class MSURLHandler(object):
     """
@@ -13,10 +14,12 @@ class MSURLHandler(object):
         self.__url = url
         self.__logger = mslogger.MSLogger()
         self.__more_urls = []
+        self.config = msconfigparser.MSConfigParser("")
 
     def isValidUrl(self, url):
         """
         what's valid url?
+        target_url in spider.config
         """
         return url.startswith("http")
 
@@ -38,7 +41,7 @@ class MSURLHandler(object):
                 if ("text/html" == response.headers['content-type']):
                     self.handleResponse(response)
             else:
-               self.__logger.warning("access " + self.__url + " fail!!") 
+               self.__logger.warning("access " + self.__url + " fail!!")
         return self.__more_urls
 
     def handleResponse(self, response):
@@ -83,3 +86,4 @@ if __name__ == "__main__":
     newUrls = urlHandler.doHandle()
     for newUrl in newUrls:
         print(newUrl,";")
+

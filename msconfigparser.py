@@ -4,16 +4,27 @@ import os
 import configparser
 
 import mslogger
+import msutils
 
 """
 and encapsulation for configparser
 """
+@msutils.singleton
 class MSConfigParser(object):
     def __init__(self, configfile):
         """
         the invoker should make sure the configfile is exists!
         """
         self.__logger = mslogger.MSLogger()
+        self.__config = None
+        self.__spiderSection = "spider"
+        self.__urlListFile = ""
+        self.__outputDirectory = ""
+        self.__maxDepth = ""
+        self.__crawlInterval = ""
+        self.__crawlTimeout = ""
+        self.__targetUrl = ""
+        self.__threadCount = 0
         if not os.path.exists(configfile):
             msg = "file " + configfile + " not exist!"
             self.__logger.error(msg)
@@ -32,7 +43,7 @@ class MSConfigParser(object):
 
     def getConfig(self, section, name):
         return self.__config.get(section, name)
-    
+
     def getSpiderConfig(self, name):
         return self.getConfig(self.__spiderSection, name)
 
@@ -43,11 +54,11 @@ class MSConfigParser(object):
     @property
     def outputDirectory(self):
         return self.__outputDirectory
-    
+
     @property
     def maxDepth(self):
         return self.__maxDepth
-    
+
     @property
     def crawlInterval(self):
         return self.__crawlInterval
@@ -62,7 +73,7 @@ class MSConfigParser(object):
 
     @property
     def threadCount(self):
-        return self.__threadCount
+        return int(self.__threadCount)
 
 if __name__ == '__main__':
     # print os.getcwd()
@@ -73,3 +84,4 @@ if __name__ == '__main__':
     names = ["url_list_file", "output_directory", "max_depth", "crawl_interval", "crawl_timeout", "target_url", "thread_count"]
     for name in names:
         print(name, ":", msconfig.getSpiderConfig(name))
+
