@@ -17,7 +17,7 @@ class MSArgParser(object):
         parser.add_argument("-c", "--config", default="./spider.conf", dest="configfile", help="indicate the config file")
         parser.add_argument("-v", "--version", action="version", version="version 0.0.0", help="show the version")
         self.__args = parser.parse_args(argv)
-        self.__logger = mslogger.MSLogger()
+        self.__logger = mslogger.MSLogger().getLogger()
 
     def getConfigFile(self):
         """
@@ -40,3 +40,4 @@ if __name__ == "__main__":
     print(msarg.getConfigFile())
     print(os.getcwd())
     print( os.path.exists(os.getcwd() + '/test/spider.config'))
+

@@ -1,10 +1,15 @@
 #-*- coding: UTF-8 -*-
 import os
 import threading
+import queue
 
 import mslogger
 import msconfigparser
 
+"""
+the element in the queue is a dict
+{"url":"http://www.baidu.com", "depth":0}
+"""
 class MSUrlStore(object):
 
     def _read_seed_file(self):
@@ -15,7 +20,8 @@ class MSUrlStore(object):
                 return
             with open(self.__seedfile, "r") as file:
                 for line in file.readlines():
-                    self.pushUrl(line.strip())
+                    url = {"url":line.strip(), "depth":0}
+                    self.pushUrl(url)
         except IOError as e:
             self.__logger.error(e)
         else:
@@ -26,24 +32,25 @@ class MSUrlStore(object):
         # the file which have the seed sites
         self.__seedfile = seedfile
         # the unvisite sites
-        self.__unvistedUrls = []
+        self.__unvistedUrls = queue.Queue() # size is infinite
         # the visited sites
         self.__visitedUrls = []
-        self.__logger = mslogger.MSLogger()
+        self.__logger = mslogger.MSLogger().getLogger()
         self.lock = threading.Lock()
         self._read_seed_file()
-        self.config = msconfigparser.MSConfigParser("")
+        self.config = msconfigparser.MSConfigParser(msconfigparser.default_cf)
 
     def popUrl(self):
         """
         get one unvisited url, not thread safe
         """
-        url = ""
-        if len(self.__unvistedUrls) > 0:
-            self.lock.acquire()
-            url = self.__unvistedUrls[0]
-            self.__unvistedUrls = self.__unvistedUrls[1:]
-            self.lock.release()
+        url = None
+#self.lock.acquire()
+        try:
+            url = self.__unvistedUrls.get(timeout=2) #2s
+        except:
+            url = None
+#self.lock.release()
         return url
 
     def pushUrl(self, url):
@@ -51,9 +58,10 @@ class MSUrlStore(object):
         add one unvisited url, not thread safe
         check url is valid or not??
         """
-        if not self.checkVisitedUrl(url):
+        if not self.checkVisitedUrl(url['url']):
+            self.__logger.debug("new url:" + url['url'])
             self.lock.acquire()
-            self.__unvistedUrls.append(url)
+            self.__unvistedUrls.put(url)
             self.lock.release()
             return True
         return False
@@ -84,17 +92,25 @@ if __name__ == "__main__":
     msurlstore = MSUrlStore(seedfile_path)
 
     url = msurlstore.popUrl()
-    print(url.strip())
+    print(url['url'].strip())
     msurlstore.pushVisitedUrl(url)
-    print(msurlstore.checkVisitedUrl(url))
+    print(msurlstore.checkVisitedUrl(url['url']))
     url = msurlstore.popUrl()
-    print(url, msurlstore.checkVisitedUrl(url))
+    if url:
+        print(url, msurlstore.checkVisitedUrl(url['url']))
+    else:
+        print("no url exit!")
     url = msurlstore.popUrl()
-    print("url:" , url, msurlstore.checkVisitedUrl(url))
-    print(msurlstore.pushUrl("http://baidu.com"))
-    print(msurlstore.pushUrl("http://www.baidu.com"))
+    if url:
+        print("url:" , url['url'], msurlstore.checkVisitedUrl(url['url']))
+    else:
+        print("no url exit!")
+    url1 = {'url':"http://www.baidu.com",'depth':1}
+    print(msurlstore.pushUrl(url1))
+    url2 = {'url':"http://www.baidu.com",'depth':2}
+    print(msurlstore.pushUrl(url2))
     url = msurlstore.popUrl()
-    print(url.strip())
+    print(url['url'].strip())
     url = msurlstore.popUrl()
-    print("url:", url.strip())
+    print("url:", url['url'].strip())
 

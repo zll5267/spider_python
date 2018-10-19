@@ -4,6 +4,7 @@ import threading
 import mslogger
 import msurlstore
 import msurlhandler
+import msconfigparser
 
 class MSWork(threading.Thread):
     """
@@ -13,17 +14,24 @@ class MSWork(threading.Thread):
     def __init__(self, urlstore):
         threading.Thread.__init__(self)
         self.__urlstore = urlstore
-        self.__logger = mslogger.MSLogger()
+        self.__logger = mslogger.MSLogger().getLogger()
+        self.config = msconfigparser.MSConfigParser(msconfigparser.default_cf)
 
     def doWork(self):
         url = self.__urlstore.popUrl()
         while url:
-            urlHandler = msurlhandler.MSURLHandler(url)
+            url_depth = url['depth']
+            urlHandler = msurlhandler.MSURLHandler(url['url'], url_depth)
             newUrls = urlHandler.doHandle()
-            self.__urlstore.pushVisitedUrl(url)
-            self.__logger.debug("visited:" + url)
-            for newUrl in newUrls:
-                self.__urlstore.pushUrl(newUrl)
+            self.__urlstore.pushVisitedUrl(url['url'])
+            self.__logger.debug("visited:" + url['url'])
+            self.__logger.debug('depth:' + str(url_depth))
+            max_depth = int(self.config.getSpiderConfig("max_depth"))
+            if url_depth < max_depth:
+                for newUrl in newUrls:
+                    self.__urlstore.pushUrl({'url':newUrl,'depth':url_depth+1})
+            else:
+                self.__logger.warning("max_depth reached")
             url = self.__urlstore.popUrl()
 
     def run(self):
@@ -41,11 +49,13 @@ if __name__ == "__main__":
     urlstore = msurlstore.MSUrlStore(seedfile_path)
 
     msWork = MSWork(urlstore)
-    #msWork.doWork()
-    msWork.start()
+    msWork.doWork() #msWork.start()
 
-    url = urlstore.popUrl()
-    while url:
-        print(url, ";")
+    try:
         url = urlstore.popUrl()
+        while url:
+            print(url)
+            url = urlstore.popUrl()
+    except KeyboardInterrupt:
+        pass
 

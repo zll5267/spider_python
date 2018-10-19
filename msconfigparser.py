@@ -6,6 +6,7 @@ import configparser
 import mslogger
 import msutils
 
+default_cf="test/spider.config"
 """
 and encapsulation for configparser
 """
@@ -15,7 +16,7 @@ class MSConfigParser(object):
         """
         the invoker should make sure the configfile is exists!
         """
-        self.__logger = mslogger.MSLogger()
+        self.__logger = mslogger.MSLogger().getLogger()
         self.__config = None
         self.__spiderSection = "spider"
         self.__urlListFile = ""

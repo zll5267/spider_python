@@ -59,6 +59,9 @@ class MSLogger(object):
         self.__setfilelogger(self.__logger)
         self.__setconsolelog(self.__logger)
 
+    def getLogger(self):
+        return self.__logger;
+
     def debug(self, msg):
         self.__logger.debug(msg)
 
@@ -80,3 +83,8 @@ if __name__ == "__main__":
     myLogger.info("info msg")
     myLogger.warning("warning msg")
     myLogger.error("error msg")
+
+    myLogger.getLogger().debug("debug msg")
+    myLogger.getLogger().info("info msg")
+    myLogger.getLogger().warning("warning msg")
+    myLogger.getLogger().error("error msg")
