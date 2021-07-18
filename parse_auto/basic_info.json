@@ -1,0 +1,34 @@
+{
+    "brands": [
+        {
+            "name": "A-AC Schnitzer",
+            "value": "650",
+            "series": [
+                {
+                    "name": "AC Schnitzer M3",
+                    "value": "2946",
+                    "bid": "651",
+                    "models": [
+                        {
+                            "name": "2015款 ACS3 sport",
+                            "value": "49852",
+                            "datafuel": "1"
+                        }
+                    ]
+                },
+                {
+                    "name": "AC Schnitzer X5",
+                    "value": "2947",
+                    "bid": "651",
+                    "models": [
+                        {
+                            "name": "2015款 ACS35 35i",
+                            "value": "49853",
+                            "datafuel": "1"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
