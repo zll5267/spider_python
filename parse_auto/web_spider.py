@@ -64,7 +64,7 @@ def spider_by_file():
     target_url_template = "http://www.12365auto.com/review/{}_{}_0_1.shtml"
     #target_url_template = "http://www.12365auto.com/review/2263_44786_0_1.shtml"
     basic_info = {}
-    with open(file_name, "r") as infile:
+    with open(file_name, "r", encoding ='utf8') as infile:
        basic_info = json.load(infile)
     if basic_info:
         for brand in basic_info["brands"]:

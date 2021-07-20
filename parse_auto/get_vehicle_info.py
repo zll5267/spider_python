@@ -76,7 +76,7 @@ def get_basic_info():
             serial["name"] = seria_element[0]
             serial["value"] = seria_element[1]
             serial["bid"] = seria_element[2]
-            print("select serial:{}, value:{}".format(seria_element[0], seria_element[1]))
+            #print("select serial:{}, value:{}".format(seria_element[0], seria_element[1]))
             #why there is twice select?? need to figure out the reason
             series_sel = browser.find_element_by_css_selector("select#series")
             #Select(series_sel).select_by_value(seria_element[1])
@@ -85,6 +85,10 @@ def get_basic_info():
             #print(serial_bsoup.select('#models option'))
             series_sel = browser.find_element_by_css_selector("select#series")
             #Select(series_sel).select_by_value(seria_element[1])
+
+            Select(series_sel).select_by_value(seria_element[1])
+            time.sleep(0.5)
+            Select(series_sel).select_by_value(seria_element[1])
             Select(series_sel).select_by_value(seria_element[1])
 
             #browser.refresh()
@@ -95,7 +99,7 @@ def get_basic_info():
             models = [] # element is (name, value, data-fuel)
             serial["models"] = []
             for model_option in models_options:
-                #print(model_option)
+                print(model_option)
                 #series option format: <option data-fuel="1" value="49853">2015款 ACS35 35i</option>
                 model_name = model_option.string
                 model_value = model_option.attrs["value"]
